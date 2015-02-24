@@ -40,7 +40,7 @@
   ],
   "dependencies": {
     "MD5": "^1.2.1",
-    "chalk": "^0.5.1",
+    "chalk": "^1.0.0",
     "compare-objects": "0.0.3"
   }
 }
