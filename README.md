@@ -47,6 +47,7 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 
 ## Release History
 
+- __0.0.3__ use git diff --relative
 - __0.0.2__ use git diff
 - __0.0.1__ beta
 

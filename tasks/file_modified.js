@@ -52,7 +52,7 @@ module.exports = function(grunt) {
       options.paths = DEFAULT_OPTIONS_PATHS;
     }
 
-    simpleGit().diff(['--name-status'], function (err, data) {
+    simpleGit().diff(['--name-status', '--relative'], function (err, data) {
       // fail
       if (err) {
         grunt.fail.fatal(err);
