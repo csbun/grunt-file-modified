@@ -8,61 +8,82 @@
 
 'use strict';
 
+var path = require('path');
 
-var fs = require('fs');
-var md5 = require('MD5');
-var compare = require('compare-objects');
+var simpleGit = require('simple-git');
 var chalk = require('chalk');
 
 var TASK_NAME = 'file_modified';
-var DESCRIPTION = 'check if files is modified';
+var DESCRIPTION = 'check if files is modified via git';
+var DEFAULT_OPTIONS_PATHS = ['./'];
 
+/**
+ * check if file in paths
+ * @param  {string} file  [ file path ]
+ * @param  {Array} paths [ array of paths ]
+ * @return {boolean}
+ */
+function checkFileInPaths (file, paths) {
+  var i = 0;
+  for (; i < paths.length; i++) {
+    if (!/\.\.\//.test(path.relative(paths[i], file))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * task
+ */
 module.exports = function(grunt) {
 
   grunt.registerMultiTask(TASK_NAME, DESCRIPTION, function () {
+    var done = this.async();
 
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-      output: 'config/.grunt_file_modified',
-      files: []
+      paths: DEFAULT_OPTIONS_PATHS
     });
 
-    // make md5-map for current files
-    var fileMD5Map = {};
-    grunt.file.expand(options.files)
-      .forEach(function (file) {
-        var stats = fs.statSync(file);
-        if (stats.isFile()) {
-          fileMD5Map[file] = md5(fs.readFileSync(file));
-        }
-      });
-
-    // checkout old md5-map
-    var oldFileMD5Map = {};
-    if (grunt.file.exists(options.output)) {
-      oldFileMD5Map = grunt.file.readJSON(options.output);
+    if (typeof options.paths === 'string') {
+      options.paths = [options.paths];
+    } else if (!options.paths instanceof Array) {
+      options.paths = DEFAULT_OPTIONS_PATHS;
     }
 
-    // compare two map
-    compare(oldFileMD5Map, fileMD5Map, function (key, value, oldValue) {
-      var newDefined = value !== undefined;
-      var oldDefined = oldValue !== undefined;
-      if (newDefined && oldDefined) {
-        if (value !== oldValue) {
-          grunt.log.writeln(chalk.red('  [updated] ') + key);
-        // } else {
-        //   console.log('unchanged', key, value, oldValue);
-        }
-      } else if (newDefined) {
-        grunt.log.writeln(chalk.green('  [ added ] ') + key);
-        return;
-      } else if (oldDefined) {
-        grunt.log.writeln(chalk.cyan('  [removed] ') + key);
+    simpleGit().diff(['--name-status'], function (err, data) {
+      // fail
+      if (err) {
+        grunt.fail.fatal(err);
+        // async done
+        done();
       }
-    });
 
-    // write fileMD5Map to output
-    grunt.file.write(options.output, JSON.stringify(fileMD5Map, null, '  '));
+      var fileLine = data.toString().split(grunt.util.linefeed);
+      var i = 0;
+      var regexp = /^(\w)\s(.*)$/;
+      var fileModifiedCount = 0;
+      for (; i < fileLine.length; i++) {
+        var matches = regexp.exec(fileLine[i]);
+        if (matches && matches.length === 3 && checkFileInPaths(matches[2], options.paths)) {
+          fileModifiedCount++;
+          if (matches[1] === 'M') {
+            grunt.log.writeln(chalk.red('  [modify] ') + matches[2]);
+          } else if (matches[1] === 'D') {
+            grunt.log.writeln(chalk.cyan('  [delete] ') + matches[2]);
+          }
+        }
+      }
+
+      // break with warn
+      if (fileModifiedCount) {
+        grunt.fail.warn('There are ' + fileModifiedCount + ' file(s) modified or deleted!');
+      }
+
+      // async done
+      done();
+    });
 
   });
 

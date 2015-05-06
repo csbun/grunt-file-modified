@@ -1,7 +1,7 @@
 {
   "name": "grunt-file-modified",
-  "description": "check if files is modified",
-  "version": "0.0.1",
+  "description": "check if files is modified via git",
+  "version": "0.0.2",
   "homepage": "https://github.com/csbun/grunt-file-modified",
   "author": {
     "name": "Hans Chan",
@@ -24,23 +24,24 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "~0.6.0",
-    "grunt-contrib-clean": "~0.4.0",
-    "grunt-contrib-nodeunit": "~0.2.0",
     "grunt": "~0.4.5"
   },
   "peerDependencies": {
     "grunt": "~0.4.5"
   },
   "keywords": [
-    "gruntplugin"
+    "gruntplugin",
+    "git",
+    "file",
+    "modify",
+    "modified"
   ],
   "dependencies": {
-    "MD5": "^1.2.1",
     "chalk": "^0.5.1",
-    "compare-objects": "0.0.3"
+    "simple-git": "^1.3.0"
   }
 }

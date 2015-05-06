@@ -1,6 +1,6 @@
 # grunt-file-modified
 
-> check if files is modified
+> check if files is modified via git
 
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
@@ -27,11 +27,7 @@ grunt.initConfig({
   file_modified: {
     your_task: {
       options: {
-        output: 'tmp/config.json',
-        files: [
-          'path/to/**/*',
-          '!path/to/ignore/file'
-        ]
+        paths: ['./']
       }
     }
   },
@@ -40,22 +36,17 @@ grunt.initConfig({
 
 ### Options
 
-#### options.output
-Type: `String`
-Default value: `'config/.grunt_file_modified'`
-
-A file which marked down all files's MD5 hash.
-
-#### options.files
+#### options.paths
 Type: `Array`
-Default value: `[]`
+Default value: `['./']`
 
-Files to be check.
+File paths to be check.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
 
+- __0.0.2__ use git diff
 - __0.0.1__ beta
 
